@@ -4,7 +4,7 @@
   <groupId>de.binfalse</groupId>
   <artifactId>BFTools</artifactId>
   <packaging>jar</packaging>
-  <version>0.3</version>
+  <version>0.3.1</version>
   <name>BFTools</name>
   <url>http://maven.apache.org</url>
   <dependencies>

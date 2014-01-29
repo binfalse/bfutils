@@ -95,6 +95,15 @@ public class GeneralTest
 		assertEquals ("pretty double produced wrong result", "-5.01", GeneralTools.prettyDouble (-5.01, null));
 		assertEquals ("pretty double produced wrong result", "-5", GeneralTools.prettyDouble (-5.000, null));
 		assertEquals ("pretty double produced wrong result", "", GeneralTools.prettyDouble (-5.000, -5));
+		
+
+		assertEquals ("pretty double produced wrong result", "5*", GeneralTools.prettyDouble (new Double (5.0), null, "", "*"));
+		assertEquals ("pretty double produced wrong result", "", GeneralTools.prettyDouble (new Double (5.0), 5, "", "*"));
+		assertEquals ("pretty double produced wrong result", "+5.01", GeneralTools.prettyDouble (5.01, null, "+", ""));
+		assertEquals ("pretty double produced wrong result", "+-5.01", GeneralTools.prettyDouble (-5.01, null, "+", ""));
+		assertEquals ("pretty double produced wrong result", "-5", GeneralTools.prettyDouble (-5.000, 0, "", ""));
+		assertEquals ("pretty double produced wrong result", "", GeneralTools.prettyDouble (-5.000, -5, "", ""));
+		
 	}
 	
 	@Test

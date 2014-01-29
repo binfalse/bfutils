@@ -105,6 +105,41 @@ public class GeneralTools
 		return d.toString ();
 	}
 	
+	
+	/**
+	 * Beautify the display of a double <code>d</code>. If the double is an int
+	 * we'll omit the <code>.0</code>. Additionally you may define an int to
+	 * neglect (e.g. <code>0</code> or <code>1</code>), thus, if
+	 * <code>d == neglect</code> you'll get an empty string. Especially designed
+	 * to display equations and stuff (e.g. omit an multiplier
+	 * of <code>1</code> or an offset of <code>0</code>).
+	 * You can also define a pre- and post-word to be put before or after,
+	 * respectively. That means, if <code>d == neglect</code> we will return
+	 * <code>""</code>, otherwise <code>pre + pretty (d) + post</code>.
+	 *
+	 * @param d the double to print
+	 * @param neglect an integer to neglect. Can be null if you don't want to omit any
+	 * number
+	 * @param pre the string to put in front of d, if d != neglect
+	 * @param post the string to put after d, if d != neglect
+	 * @return the pretty string
+	 */
+	public static String prettyDouble (Double d, Integer neglect, String pre, String post)
+	{
+		if (d == null)
+			return "";
+		
+		if ((d == Math.rint (d)) && !Double.isInfinite (d) && !Double.isNaN (d))
+		{
+			int s = d.intValue ();
+			if (neglect != null && s == neglect)
+				return "";
+	    return pre + s + "" + post;
+		}
+		
+		return pre + d.toString () + post;
+	}
+	
 
   /**
    * Byte to hex.
