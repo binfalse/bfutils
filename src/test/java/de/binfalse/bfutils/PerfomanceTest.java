@@ -1,10 +1,12 @@
 /**
  * 
  */
-package de.binfalse.bftools;
+package de.binfalse.bfutils;
 
 import java.util.Random;
 import java.util.UUID;
+
+import de.binfalse.bfutils.GeneralTools;
 
 
 /**

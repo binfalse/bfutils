@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.binfalse.bftools;
+package de.binfalse.bfutils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

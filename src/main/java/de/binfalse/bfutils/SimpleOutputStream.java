@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.binfalse.bftools;
+package de.binfalse.bfutils;
 
 import java.io.IOException;
 import java.io.OutputStream;

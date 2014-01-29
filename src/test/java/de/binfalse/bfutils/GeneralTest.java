@@ -1,13 +1,15 @@
 /**
  * 
  */
-package de.binfalse.bftools;
+package de.binfalse.bfutils;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import de.binfalse.bfutils.GeneralTools;
 
 
 

@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.binfalse</groupId>
-  <artifactId>BFTools</artifactId>
+  <artifactId>BFUtils</artifactId>
   <packaging>jar</packaging>
-  <version>0.3.1</version>
-  <name>BFTools</name>
+  <version>0.3.2</version>
+  <name>BFUtils</name>
   <url>http://maven.apache.org</url>
   <dependencies>
       <dependency>
