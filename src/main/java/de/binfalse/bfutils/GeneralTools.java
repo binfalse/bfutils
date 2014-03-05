@@ -3,8 +3,6 @@
  */
 package de.binfalse.bfutils;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -208,7 +206,7 @@ public class GeneralTools
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			LOGGER.error ("cannot hash message because algorithm unknown", e);
+			LOGGER.error (e, "cannot hash message because algorithm unknown");
 			return null;
 		}
 		
