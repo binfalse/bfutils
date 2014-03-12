@@ -6,6 +6,8 @@ package de.binfalse.bfutils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.xml.bind.DatatypeConverter;
+
 import de.binfalse.bflog.LOGGER;
 
 
@@ -257,6 +259,28 @@ public class GeneralTools
   }
 	
 	
+  /**
+   * Encode some byte in base64.
+   *
+   * @param bytes the bytes
+   * @return the base64 encoded string
+   */
+  public static String encodeBase64 (byte [] bytes)
+  {
+  	return DatatypeConverter.printBase64Binary (bytes);
+  }
+	
+	
+  /**
+   * Decode a base64 string.
+   *
+   * @param str the string encoded in base64
+   * @return the bytes
+   */
+  public static byte [] decodeBase64 (String str)
+  {
+  	return DatatypeConverter.parseBase64Binary (str);
+  }
 	
 	
 }
