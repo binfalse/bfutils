@@ -4,11 +4,21 @@
 package de.binfalse.bfutils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import de.binfalse.bflog.LOGGER;
 import de.binfalse.bfutils.GeneralTools;
 
 
@@ -114,4 +124,96 @@ public class GeneralTest
 		assertEquals ("byte to hex has a problem", "010204080f1020", GeneralTools.byteToHex (new byte [] { 1, 2, 4, 8, 15, 16, 32 }));
 	}
 	
+	@Test
+	public void testFileRetriever ()
+	{
+		try
+		{
+			File tmp1 = File.createTempFile ("junit", "test");
+			File tmp2 = File.createTempFile ("junit", "test");
+			tmp1.deleteOnExit ();tmp2.deleteOnExit ();
+			
+			// test succ
+			FileRetriever.getFile (new URI ("http://binfalse.de/"), tmp1);
+			boolean succ = false;
+			BufferedReader br = new BufferedReader (new FileReader (tmp1));
+			while (br.ready ())
+				if (br.readLine ().toLowerCase ().contains ("martin scharm"))
+				{
+					succ = true;
+					break;
+				}
+			br.close ();
+			assertTrue ("download of binfalse.de failed", succ);
+			
+			// test failed
+			testDownloadInvalidFile ("http://should-not.exist.bcause.inval/this/should/not/exist", tmp2);
+			testDownloadInvalidFile ("http://binfalse.de/this/should/not/exist", tmp2);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace ();
+			LOGGER.error (e, "unexpected error during caching test");
+			fail ("unexpected error during caching test: " + e);
+		}
+		
+	}
+	
+	private void testDownloadInvalidFile (String url, File file)
+	{
+		try
+		{
+			FileRetriever.getFile (new URI (url), file);
+			fail ("was able to download ");
+		}
+		catch (Exception e)
+		{
+		}
+		assertTrue ("did not download but file was created?", !file.exists () || file.length () == 0);
+	}
+	
+	
+	@Test
+	public void testCache ()
+	{
+		try
+		{
+			File tmp1 = File.createTempFile ("junit", "test");
+			File tmp2 = File.createTempFile ("junit", "test");
+			tmp1.deleteOnExit ();tmp2.deleteOnExit ();
+			
+			// let's go around the world
+			long one = System.currentTimeMillis ();
+			FileRetriever.getFile (new URI ("http://models.cellml.org/exposure/29a0ec2468a49a64a123f927083260f0/BestPractice_Cdecoupled.cellml"), tmp1);
+			one = System.currentTimeMillis () - one;
+			
+
+			long two = System.currentTimeMillis ();
+			FileRetriever.getFile (new URI ("http://models.cellml.org/exposure/29a0ec2468a49a64a123f927083260f0/BestPractice_Cdecoupled.cellml"), tmp2);
+			two = System.currentTimeMillis () - two;
+			
+			LOGGER.info ("caching safes " + (one - two) + "ms for one file from NZ");
+			
+			assertTrue ("mmh, caching slows the process??", one > two);
+			
+			// make sure both files are the same
+			StringBuilder str1 = new StringBuilder ();
+			StringBuilder str2 = new StringBuilder ();
+			BufferedReader br = new BufferedReader (new FileReader (tmp1));
+			while (br.ready ())
+				str1.append (br.readLine ()).append ("\n");
+			br.close ();
+			br = new BufferedReader (new FileReader (tmp2));
+			while (br.ready ())
+				str2.append (br.readLine ()).append ("\n");
+			br.close ();
+			
+			assertEquals ("the files differ!?", str1.toString (), str2.toString ());
+		}
+		catch (Exception e)
+		{
+			LOGGER.error (e, "unexpected error during caching test");
+			fail ("unexpected error during caching test: " + e);
+		}
+	}
 }

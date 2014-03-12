@@ -4,14 +4,14 @@
   <groupId>de.binfalse</groupId>
   <artifactId>BFUtils</artifactId>
   <packaging>jar</packaging>
-  <version>0.3.2</version>
+  <version>0.3.4</version>
   <name>BFUtils</name>
   <url>http://maven.apache.org</url>
   <dependencies>
       <dependency>
           <groupId>de.binfalse</groupId>
           <artifactId>BFLog</artifactId>
-          <version>1.3.2</version>
+          <version>1.3.3</version>
       </dependency>
       <dependency>
           <groupId>junit</groupId>

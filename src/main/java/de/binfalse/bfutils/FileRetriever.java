@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 
 import de.binfalse.bflog.LOGGER;
 
@@ -27,11 +28,63 @@ import de.binfalse.bflog.LOGGER;
 public class FileRetriever
 {
 	
-	/** Are we allowed to search for local files? */
+	/** The cache dir. */
+	public static File CACHE_DIR;
+	
+	/** should we delete the cache after exit?*/
+	private static boolean keepCache = false;
+	
+	/** Are we allowed to search for local files?. */
 	public static boolean FIND_LOCAL = true;
 	
-	/** Are we allowed to search for files on the Internet? */
+	/** Are we allowed to search for files on the Internet?. */
 	public static boolean FIND_REMOTE = true;
+	
+	static {
+		setUpCache ();
+	}
+	
+	/**
+	 * Sets the up caching.
+	 */
+	private static void setUpCache ()
+	{
+		try
+		{
+			CACHE_DIR = Files.createTempDirectory ("BFToolsFileRetrieverCache").toFile ();
+		}
+		catch (IOException e)
+		{
+			LOGGER.error (e, "error creating temporary directory for caching");
+		}
+	}
+	
+	/**
+	 * Sets the up caching. Pass null as an argument to disable caching.
+	 *
+	 * @param directory the directory to write to
+	 * @return true, if successfully configured caching
+	 */
+	public static boolean setUpCache (File directory)
+	{
+		keepCache = false;
+		CACHE_DIR = directory;
+		if (CACHE_DIR == null)
+			return false;
+		
+		if (!CACHE_DIR.exists ())
+			CACHE_DIR.mkdirs ();
+		
+		if (CACHE_DIR.exists () && CACHE_DIR.isDirectory () && CACHE_DIR.canWrite () && CACHE_DIR.canRead ())
+		{
+			keepCache = true;
+			return true;
+		}
+		
+		LOGGER.warn ("cache directory isn't appropriate");
+		CACHE_DIR = null;
+		return false;
+	}
 	
 	/**
 	 * Compute an URI location. If href is relative we try to resolve it using base
@@ -104,12 +157,40 @@ public class FileRetriever
 			throw new IOException ("remote resolving disabled");
 
 		LOGGER.debug ("downloading " + from + " to " + to);
+
+		File cached = null;
+		if (CACHE_DIR != null)
+		{
+			String cachedDir = CACHE_DIR.getAbsolutePath () + File.separatorChar;
+			String cachedName = GeneralTools.encodeBase64 (from.toString ().getBytes ());
+			while (cachedName.length () > 51)
+			{
+				cachedDir += cachedName.substring (0, 50) + File.separatorChar;
+				cachedName = cachedName.substring (50);
+			}
+			//cached = new File (CACHE_DIR.getAbsolutePath () + File.separatorChar + GeneralTools.encodeBase64 (from.toString ().getBytes ()));
+			cached = new File (cachedDir + cachedName);
+			if (cached.exists ())
+			{
+				copy (cached.toURI (), to);
+				return;
+			}
+		}
 		
 		URL website = from.toURL ();
 		ReadableByteChannel rbc = Channels.newChannel (website.openStream ());
 		FileOutputStream fos = new FileOutputStream (to);
 		fos.getChannel ().transferFrom (rbc, 0, 1 << 24);
 		fos.close ();
+
+		if (CACHE_DIR != null)
+		{
+			cached.getParentFile ().mkdirs ();
+			copy (to.toURI (), cached);
+			if (!keepCache)
+				cached.deleteOnExit ();
+		}
+		
 	}
 	
 	
