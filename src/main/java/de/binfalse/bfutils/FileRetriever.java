@@ -102,18 +102,14 @@ public class FileRetriever
 		// is full
 		if (theUri.isAbsolute ())
 			return theUri;
-		
-		
+
 		// href is absolut in fs
 		if (href.startsWith ("/"))
-		{
 			return new URI ("file://" + href);
-		}
 
 		// is realtive
 		if (base == null || !base.isAbsolute ())
 			throw new IOException ("don't know where this relative path points to: "+href+" (no base provided, or base also relative).");
-		
 		
 		return base.resolve (theUri);
 	}
@@ -125,9 +121,9 @@ public class FileRetriever
 	 * @param to the destination
 	 * @throws IOException the IO exception
 	 */
-	protected static void copy (URI from, File to) throws IOException
+	protected static void copy (URI from, File to, boolean local) throws IOException
 	{
-		if (!FIND_LOCAL)
+		if (local && !FIND_LOCAL)
 			throw new IOException ("local resolving disabled");
 
 		LOGGER.debug ("copying " + from + " to " + to);
@@ -172,7 +168,7 @@ public class FileRetriever
 			cached = new File (cachedDir + cachedName);
 			if (cached.exists ())
 			{
-				copy (cached.toURI (), to);
+				copy (cached.toURI (), to, false);
 				return;
 			}
 		}
@@ -186,7 +182,7 @@ public class FileRetriever
 		if (CACHE_DIR != null)
 		{
 			cached.getParentFile ().mkdirs ();
-			copy (to.toURI (), cached);
+			copy (to.toURI (), cached, false);
 			if (!keepCache)
 				cached.deleteOnExit ();
 		}
@@ -207,11 +203,11 @@ public class FileRetriever
 		if (!dest.canWrite ())
 			throw new IOException ("cannot write to file: " + dest.getAbsolutePath ());
 		
-		LOGGER.info ("trying to retrieve file from " + file + " to " + dest);
+		LOGGER.info ("trying to retrieve file from ", file, " to ", dest, file.getScheme ().toLowerCase ());
 		
 		// file: -> copy
 		if (file.getScheme ().toLowerCase ().startsWith ("file"))
-			copy (file, dest);
+			copy (file, dest, true);
 		// otherwise download
 		else
 			download (file, dest);
