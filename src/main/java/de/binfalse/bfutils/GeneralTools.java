@@ -3,6 +3,13 @@
  */
 package de.binfalse.bfutils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -282,5 +289,34 @@ public class GeneralTools
   	return DatatypeConverter.parseBase64Binary (str);
   }
 	
+	/**
+	 * Read a file and return its contents as a string.
+	 *
+	 * @param f the file
+	 * @return the string
+	 * @throws IOException 
+	 */
+	public static String fileToString (File f) throws IOException
+	{
+		BufferedReader br = new BufferedReader (new FileReader (f));
+		StringBuilder sb = new StringBuilder ();
+		while (br.ready ())
+			sb.append (br.readLine ()).append (LOGGER.NEWLINE);
+		br.close ();
+		return sb.toString ();
+	}
 	
+	/**
+	 * Write a string to a file.
+	 *
+	 * @param s the string
+	 * @param f the file
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static void stringToFile (String s, File f) throws IOException
+	{
+		BufferedWriter bw = new BufferedWriter (new FileWriter (f));
+		bw.write (s);
+		bw.close ();
+	}
 }

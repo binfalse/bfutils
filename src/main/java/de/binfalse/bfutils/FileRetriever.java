@@ -52,6 +52,7 @@ public class FileRetriever
 		try
 		{
 			CACHE_DIR = Files.createTempDirectory ("BFToolsFileRetrieverCache").toFile ();
+			CACHE_DIR.deleteOnExit ();
 		}
 		catch (IOException e)
 		{
