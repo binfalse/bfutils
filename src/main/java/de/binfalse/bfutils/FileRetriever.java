@@ -6,23 +6,36 @@ package de.binfalse.bfutils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import de.binfalse.bflog.LOGGER;
 
 
 /**
  * Class FileRetriever to retrieve files from disk or from web.
- *
+ * TODO: JDOC
  * @author Martin Scharm
  */
 public class FileRetriever
@@ -39,6 +52,9 @@ public class FileRetriever
 	
 	/** Are we allowed to search for files on the Internet?. */
 	public static boolean FIND_REMOTE = true;
+
+	private static Properties cacheProps;
+	private static File cacheFile;
 	
 	static {
 		setUpCache ();
@@ -49,6 +65,7 @@ public class FileRetriever
 	 */
 	private static void setUpCache ()
 	{
+		cacheProps = new Properties();
 		try
 		{
 			CACHE_DIR = Files.createTempDirectory ("BFToolsFileRetrieverCache").toFile ();
@@ -65,8 +82,9 @@ public class FileRetriever
 	 *
 	 * @param directory the directory to write to
 	 * @return true, if successfully configured caching
+	 * @throws IOException 
 	 */
-	public static boolean setUpCache (File directory)
+	public static boolean setUpCache (File directory) throws IOException
 	{
 		keepCache = false;
 		CACHE_DIR = directory;
@@ -79,12 +97,32 @@ public class FileRetriever
 		if (CACHE_DIR.exists () && CACHE_DIR.isDirectory () && CACHE_DIR.canWrite () && CACHE_DIR.canRead ())
 		{
 			keepCache = true;
+			
+			cacheFile = new File (CACHE_DIR + File.separator + "cache.props");
+			if (cacheFile.exists ())
+			{
+				FileInputStream in = new FileInputStream(cacheFile);
+				cacheProps.load(in);
+				in.close();
+			}
+			else
+				cacheFile.createNewFile ();
 			return true;
 		}
 		
 		LOGGER.warn ("cache directory isn't appropriate");
 		CACHE_DIR = null;
 		return false;
+	}
+	
+	private static void storeCacheProps () throws IOException
+	{
+		if (cacheFile != null)
+		{
+			FileOutputStream out = new FileOutputStream (cacheFile);
+			cacheProps.store(out, "---No Comment---");
+			out.close();
+		}
 	}
 	
 	/**
@@ -122,23 +160,19 @@ public class FileRetriever
 	 * @param to the destination
 	 * @throws IOException the IO exception
 	 */
-	protected static void copy (URI from, File to, boolean local) throws IOException
+	protected static String copy (URI from, File to, boolean local) throws IOException
 	{
 		if (local && !FIND_LOCAL)
 			throw new IOException ("local resolving disabled");
 
 		LOGGER.debug ("copying " + from + " to " + to);
 		
-		BufferedWriter bw = new BufferedWriter (new FileWriter (to));
-		BufferedReader br = new BufferedReader (new FileReader (
-			from.toURL ().getFile ()));
-		while (br.ready ())
-		{
-			bw.write (br.readLine ());
-			bw.newLine ();
-		}
-		bw.close ();
-		br.close ();
+		Files.copy (Paths.get (from), Paths.get (to.getAbsolutePath ()), new CopyOption[]{
+      StandardCopyOption.REPLACE_EXISTING,
+      StandardCopyOption.COPY_ATTRIBUTES
+    });
+		// TODO: FIXME
+		return null;
 	}
 	
 	/**
@@ -148,7 +182,7 @@ public class FileRetriever
 	 * @param to the destination
 	 * @throws IOException the IO exception
 	 */
-	protected static void download (URI from, File to) throws IOException
+	protected static String download (URI from, File to, boolean downloadAnyway) throws IOException
 	{
 		if (!FIND_REMOTE)
 			throw new IOException ("remote resolving disabled");
@@ -156,10 +190,10 @@ public class FileRetriever
 		LOGGER.debug ("downloading " + from + " to " + to);
 
 		File cached = null;
+		String cachedName = GeneralTools.encodeBase64 (from.toString ().getBytes ());
 		if (CACHE_DIR != null)
 		{
 			String cachedDir = CACHE_DIR.getAbsolutePath () + File.separatorChar;
-			String cachedName = GeneralTools.encodeBase64 (from.toString ().getBytes ());
 			while (cachedName.length () > 51)
 			{
 				cachedDir += cachedName.substring (0, 50) + File.separatorChar;
@@ -170,24 +204,53 @@ public class FileRetriever
 			if (cached.exists ())
 			{
 				copy (cached.toURI (), to, false);
-				return;
+				return cacheProps.getProperty (cachedName, null);
 			}
 		}
 		
-		URL website = from.toURL ();
-		ReadableByteChannel rbc = Channels.newChannel (website.openStream ());
-		FileOutputStream fos = new FileOutputStream (to);
-		fos.getChannel ().transferFrom (rbc, 0, 1 << 24);
-		fos.close ();
+		String suggestedName = null;
+		HttpClient client = HttpClientBuilder.create ().build ();
+		HttpResponse getResponse = client.execute (new HttpGet (from));
+		
+		// check if file exists
+		if (!downloadAnyway && getResponse.getStatusLine ().getStatusCode () != 200)
+			throw new IOException (getResponse.getStatusLine ().getStatusCode ()
+				+ " " + getResponse.getStatusLine ().getReasonPhrase ()
+				+ " while download " + from);
+		
+		HttpEntity entity = getResponse.getEntity ();
+		if (entity == null)
+			throw new IOException (
+				"No content returned while donwloading remote file " + from);
+		
+		// for name suggestions
+		Header dispositionHeader = getResponse
+			.getFirstHeader ("Content-Disposition");
+		if (dispositionHeader != null && dispositionHeader.getValue () != null
+			&& dispositionHeader.getValue ().isEmpty () == false)
+		{
+			Matcher matcher = Pattern.compile (
+				"filename=\\\"?(([a-zA-Z0-9-_\\+]+).(\\w+))\\\"?",
+				Pattern.CASE_INSENSITIVE).matcher (dispositionHeader.getValue ());
+			if (matcher.find ())
+				suggestedName = matcher.group (1);
+		}
+		
+		// download it
+		OutputStream output = new FileOutputStream  (to);
+		IOUtils.copy (entity.getContent (), output);
+		
 
 		if (CACHE_DIR != null)
 		{
 			cached.getParentFile ().mkdirs ();
 			copy (to.toURI (), cached, false);
+			if (suggestedName != null)
+				cacheProps.put (cachedName, suggestedName);
 			if (!keepCache)
 				cached.deleteOnExit ();
 		}
-		
+		return suggestedName;
 	}
 	
 	
@@ -199,7 +262,7 @@ public class FileRetriever
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws URISyntaxException thrown if file or base have a strange format
 	 */
-	public static void getFile (URI file, File dest) throws IOException, URISyntaxException
+	public static String getFile (URI file, File dest) throws IOException, URISyntaxException
 	{
 		if (!dest.canWrite ())
 			throw new IOException ("cannot write to file: " + dest.getAbsolutePath ());
@@ -208,9 +271,9 @@ public class FileRetriever
 		
 		// file: -> copy
 		if (file.getScheme ().toLowerCase ().startsWith ("file"))
-			copy (file, dest, true);
+			return copy (file, dest, true);
 		// otherwise download
 		else
-			download (file, dest);
+			return download (file, dest, false);
 	}
 }

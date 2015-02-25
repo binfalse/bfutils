@@ -18,17 +18,19 @@ public class PerfomanceTest
 	public static void main (String [] args)
 	{
 		Random r = new Random ();
-		String [] testStrings = new String [1000];
+		String [] testStrings = new String [10000];
 		for (int i = 0; i < testStrings.length; i++)
 			testStrings[i] = GeneralTools.repeat (UUID.randomUUID ().toString (), r.nextInt (50) + 1);
 
 		
 		// start
 
+		long def = 0;
 		long md5 = 0;
 		long sha1 = 0;
 		long sha256 = 0;
 		long sha512 = 0;
+		int defSize = 0;
 		int md5Size = 0;
 		int sha1Size = 0;
 		int sha256Size = 0;
@@ -42,8 +44,8 @@ public class PerfomanceTest
 		{
 			h.append (testStrings[i]);
 		}
-		md5 = System.currentTimeMillis () - now;
-		
+		def = System.currentTimeMillis () - now;
+		defSize = h.toString ().length ();
 
 		h = new StringBuilder ();
 		now = System.currentTimeMillis ();
@@ -83,6 +85,7 @@ public class PerfomanceTest
 		md5Size = h.toString ().length ();
 		
 
+		System.out.println ("def: " + def + " / " + defSize);
 		System.out.println ("md5: " + md5 + " / " + md5Size);
 		System.out.println ("sha1: " + sha1 + " / " + sha1Size);
 		System.out.println ("sha256: " + sha256 + " / " + sha256Size);

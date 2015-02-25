@@ -36,18 +36,18 @@ public class GeneralTest
 	{
 		String msg = "sampleMessage\n";
 		// test md5
-		assertEquals ("md5 sum is wrong", "018680997a7d2c332ef384cd99174d38",
+		assertEquals ("md5 sum is wrong", "018680997a7d2c332ef384cd99174d38".toUpperCase (),
 			GeneralTools.hashMd5 (msg));
 		// test sha1
-		assertEquals ("sha1 sum is wrong", "d1bce95fe1e2e9e3cc7c934c694c795"
-			+ "69a29993d", GeneralTools.hashSha1 (msg));
+		assertEquals ("sha1 sum is wrong", ("d1bce95fe1e2e9e3cc7c934c694c795"
+			+ "69a29993d").toUpperCase (), GeneralTools.hashSha1 (msg));
 		// test sha265
-		assertEquals ("sha256 sum is wrong", "63b07320d6d6385e09168ee594934"
-			+ "684f6948b68706fa3b9d87461de3a4c7e8e", GeneralTools.hashSha256 (msg));
+		assertEquals ("sha256 sum is wrong", ("63b07320d6d6385e09168ee594934"
+			+ "684f6948b68706fa3b9d87461de3a4c7e8e").toUpperCase (), GeneralTools.hashSha256 (msg));
 		// test sha512
-		assertEquals ("sha512 sum is wrong", "4418ab0a057072c9e607322c828e5"
+		assertEquals ("sha512 sum is wrong", ("4418ab0a057072c9e607322c828e5"
 			+ "6a5f9643d921a1e204424056506ac028f1d45889209bd0a3177eb59e1d017f"
-			+ "3d18e14ba5e4196de9a454d5ff064daf0f185", GeneralTools.hashSha512 (msg));
+			+ "3d18e14ba5e4196de9a454d5ff064daf0f185").toUpperCase (), GeneralTools.hashSha512 (msg));
 	}
 	
 	private void testMin (int a, int b, int c, int min)

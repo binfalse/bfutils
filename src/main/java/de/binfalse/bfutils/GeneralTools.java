@@ -206,12 +206,7 @@ public class GeneralTools
 			md = MessageDigest.getInstance (algorithm);
 	    md.update(msg.getBytes());
 	
-	    byte byteData[] = md.digest();
-	
-	    StringBuffer sb = new StringBuffer();
-	    for (int i = 0; i < byteData.length; i++)
-	        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-			return sb.toString ();
+	    return DatatypeConverter.printHexBinary (md.digest());
 		}
 		catch (NoSuchAlgorithmException e)
 		{
