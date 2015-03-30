@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -313,5 +314,22 @@ public class GeneralTools
 		BufferedWriter bw = new BufferedWriter (new FileWriter (f));
 		bw.write (s);
 		bw.close ();
+	}
+	
+	/**
+	 * Calculate the size of iterable object.
+	 *
+	 * @param iterable the iterable
+	 * @return the its size
+	 */
+	public static int sizeOfIterable (Iterable<?> iterable)
+	{
+		int size = 0;
+		if (iterable instanceof Collection<?>)
+			size = ((Collection<?>)iterable).size();
+		else
+			for (@SuppressWarnings("unused") Object i : iterable)
+				size++;
+		return size;
 	}
 }
