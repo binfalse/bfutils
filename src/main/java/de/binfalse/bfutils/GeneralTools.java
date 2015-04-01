@@ -332,4 +332,29 @@ public class GeneralTools
 				size++;
 		return size;
 	}
+	
+
+	
+	
+	/**
+	 * Recursively delete file or directory.
+	 * This function was cheekily stolen from the
+	 * CombineArchive Toolkit, see
+	 * <a href="https://sems.uni-rostock.de/trac/combinearchive/browser/src/main/java/de/unirostock/sems/cbarchive/Utils.java">original version</a>
+	 *
+	 * @param f the file/dir to delete
+	 * @return true, if successful
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static boolean delete (File f) throws IOException
+	{
+		boolean succ = true;
+		if (f.isDirectory ())
+			for (File c : f.listFiles ())
+				succ = succ && delete (c);
+		if (!f.delete ())
+			succ = false;
+		
+		return succ;
+	}
 }
