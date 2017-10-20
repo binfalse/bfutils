@@ -71,7 +71,6 @@ public class AlphabetIterator implements Iterator<String>
   /* (non-Javadoc)
    * @see java.util.Iterator#next()
    */
-  @Override
   public String next()
   {
       return alpha (++now).toString ();
@@ -80,7 +79,6 @@ public class AlphabetIterator implements Iterator<String>
 	/* (non-Javadoc)
 	 * @see java.util.Iterator#hasNext()
 	 */
-	@Override
 	public boolean hasNext ()
 	{
 		return true;
@@ -89,7 +87,6 @@ public class AlphabetIterator implements Iterator<String>
 	/* (non-Javadoc)
 	 * @see java.util.Iterator#remove()
 	 */
-	@Override
 	public void remove ()
 	{
 		throw new RuntimeException ("illegal operation");
