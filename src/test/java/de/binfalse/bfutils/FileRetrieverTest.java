@@ -42,7 +42,7 @@ public class FileRetrieverTest
 			FileRetriever.getFile (new URI ("http://purl.uni-rostock.de/comodi/comodi#Target"), tmp, addHeaders);
 			result = GeneralTools.fileToString (tmp);
 			assertTrue ("expected an html file but did not find <!DOCTYPE html>", result.contains ("<!DOCTYPE html>"));
-			assertTrue ("expected an html file but did not find Please cite COMODI as:", result.contains ("Please cite COMODI as:"));
+			assertTrue ("expected an html file but did not find Martin Scharm, Dagmar Waltemath, Pedro Mendes, and Olaf Wolkenhauer", result.contains ("Martin Scharm, Dagmar Waltemath, Pedro Mendes, and Olaf Wolkenhauer"));
 
 			addHeaders.put ("Accept", "something");
 			FileRetriever.getFile (new URI ("http://purl.uni-rostock.de/comodi/comodi#Target"), tmp, addHeaders);

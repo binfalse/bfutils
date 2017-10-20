@@ -3,7 +3,7 @@
   <groupId>de.binfalse</groupId>
   <artifactId>BFUtils</artifactId>
   <packaging>jar</packaging>
-  <version>0.5</version>
+  <version>0.5.1</version>
   <name>BFUtils</name>
   <url>http://maven.apache.org</url>
   <dependencies>
