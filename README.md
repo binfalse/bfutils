@@ -37,6 +37,38 @@ Example:
 	while (new File (basename + uniq).exists ())
 		uniq = alph.next ();
 
+### Simple Output Stream
+
+Sometimes you need to supply an output stream, but you're actually just interested in the streams content.
+In That case you may use `de.binfalse.bfutils.SimpleOutputStream`.
+It is able to collect the stream and you can then obtain it using `toString ()`.
+
+### Quickly download a file from the internet
+
+The following snippet
+
+	String url = "https://binfalse.de/";
+	File target = new File ("/tmp/binfalse.web.page");
+	boolean anyway = true;
+	de.binfalse.bfutils.Downloader.download (url, target, anyway);
+
+downloads the web resource `https://binfalse.de/` and stores it as `/tmp/binfalse.web.page`.
+The HTTP response may indicate a failure.
+With `anyway = true` we will still download the resulting web page.
+
+
+### Retrieve files from web or disk
+
+The `de.binfalse.bfutils.FileRetriever` helps you retrieving files.
+You can configure a cache using `FileRetriever.setUpCache (new File ("/path/to/cache/dir"))` to not download the same thing over and over again.
+
+To retrieve a file just call
+
+	FileRetriever.getFile (URI, File);
+
+The FileRetriever will check if it's local or not and get you the desired file.
+By setting `FileRetriever.FIND_LOCAL = false` and `FileRetriever.FIND_REMOTE = false` you may prevent loading data from disk or the internet.
+
 
 ### General Tools
 

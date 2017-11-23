@@ -5,7 +5,7 @@
     <url>https://github.com/binfalse/bfutils</url>
     <description>Useful Utilities</description>
     <packaging>jar</packaging>
-    <version>0.5.3</version>
+    <version>0.5.4</version>
     <name>BFUtils</name>
     <licenses>
         <license>
