@@ -171,13 +171,12 @@ public class FileRetriever
 	
 	/**
 	 * Copy a file. Will throw an exception if FIND_LOCAL is false.
-	 * 
-	 * @param from
-	 *          the origin
-	 * @param to
-	 *          the destination
-	 * @throws IOException
-	 *           the IO exception
+	 *
+	 * @param from the origin
+	 * @param to the destination
+	 * @param local from local?
+	 * @return the string
+	 * @throws IOException the IO exception
 	 */
 	protected static String copy (URI from, File to, boolean local)
 		throws IOException
@@ -198,13 +197,13 @@ public class FileRetriever
 	/**
 	 * Download a file from a remote location.. Will throw an exception if
 	 * FIND_REMOTE is false.
-	 * 
-	 * @param from
-	 *          the origin
-	 * @param to
-	 *          the destination
-	 * @throws IOException
-	 *           the IO exception
+	 *
+	 * @param from the origin
+	 * @param to the destination
+	 * @param downloadAnyway the download anyway
+	 * @param addidionalHeaders the addidional headers
+	 * @return the suggested name
+	 * @throws IOException the IO exception
 	 */
 	protected static String download (URI from, File to, boolean downloadAnyway,
 		Map<String, String> addidionalHeaders) throws IOException
@@ -296,15 +295,12 @@ public class FileRetriever
 	
 	/**
 	 * Retrieves a file from an URI.
-	 * 
-	 * @param file
-	 *          the URI to the file
-	 * @param dest
-	 *          the destination to write to
-	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
-	 * @throws URISyntaxException
-	 *           thrown if file or base have a strange format
+	 *
+	 * @param file the URI to the file
+	 * @param dest the destination to write to
+	 * @return the suggested name
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws URISyntaxException thrown if file or base have a strange format
 	 */
 	public static String getFile (URI file, File dest)
 		throws IOException,
